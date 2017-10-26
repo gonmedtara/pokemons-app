@@ -1,0 +1,88 @@
+<!--<div class="card-action">-->
+<!--<a (click)="login()"  *ngIf="!authService.isLoggedIn">Se connecter</a>-->
+<!--<a (click)="logout()" *ngIf="authService.isLoggedIn">Se déconnecter</a>-->
+<!--</div>-->
+<button mat-raised-button color="warn" (click)="login({'email':'admin@sifast.com','password':'admin100'})">Login Admin</button>
+<mat-grid-list cols="2">
+  <mat-grid-tile >
+    <form class="forms" [formGroup]="formAdd" novalidate (ngSubmit)="addUser(formAdd.value, formAdd.valid)">
+      <h1>Add user</h1>
+      <div formGroupName="name">
+        <mat-form-field>
+          <input matInput required formControlName="first" placeholder="First">
+          <mat-error *ngIf="formAdd.controls.name.controls.first.hasError('required')">
+            {{validationMessages.name.first.required}}
+          </mat-error>
+          <mat-error *ngIf="formAdd.controls.name.controls.first.hasError('minlength')">
+            {{validationMessages.name.first.minlength}}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput required formControlName="last" placeholder="Last">
+          <mat-error *ngIf="formAdd.controls.name.controls.last.hasError('required')">
+            {{validationMessages.name.last.required}}
+          </mat-error>
+          <mat-error *ngIf="formAdd.controls.name.controls.last.hasError('minlength')">
+            {{validationMessages.name.last.minlength}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field>
+        <input matInput required formControlName="email" placeholder="Email">
+        <mat-error *ngIf="formAdd.controls.email.hasError('required')">{{validationMessages.email.required}}</mat-error>
+        <mat-error *ngIf="formAdd.controls.email.hasError('pattern')">{{validationMessages.email.pattern}}</mat-error>
+
+      </mat-form-field>
+
+      <div formGroupName="verification">
+        <mat-form-field>
+          <input matInput required formControlName="password" placeholder="Password">
+          <mat-error *ngIf="formAdd.controls.verification.controls.password.hasError('required')">
+            {{validationMessages.verification.password.required}}
+          </mat-error>
+          <mat-error *ngIf="formAdd.controls.verification.controls.password.hasError('minlength')">
+            {{validationMessages.verification.password.minlength}}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput required formControlName="passwordConfirm" placeholder="Password Confirmation">
+          <mat-error *ngIf="formAdd.controls.verification.controls.passwordConfirm.hasError('required')">
+            {{validationMessages.verification.passwordConfirm.required}}
+          </mat-error>
+          <mat-error *ngIf="formAdd.controls.verification.controls.passwordConfirm.hasError('minlength')">
+            {{validationMessages.verification.passwordConfirm.minlength}}
+          </mat-error>
+          <mat-error *ngIf="formAdd.controls.verification.getError('validateEqual', ['passwordConfirm'])">
+            {{validationMessages.verification.passwordConfirm.validateEqual}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <button [disabled]="formAdd.invalid" mat-raised-button color="accent">Add user</button>
+    </form>
+  </mat-grid-tile>
+  <mat-grid-tile >
+    <form class="forms" [formGroup]="formLogin" novalidate (ngSubmit)="login(formLogin.value, formLogin.valid)">
+      <h1>Login</h1>
+      <mat-form-field>
+        <input matInput required formControlName="email" placeholder="Email">
+        <mat-error *ngIf="formLogin.controls.email.hasError('required')">{{validationMessages.email.required}}
+        </mat-error>
+        <mat-error *ngIf="formLogin.controls.email.hasError('pattern')">{{validationMessages.email.pattern}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput required formControlName="password" placeholder="Password">
+        <mat-error *ngIf="formLogin.controls.password.hasError('required')">
+          {{validationMessages.verification.password.required}}
+        </mat-error>
+        <mat-error *ngIf="formLogin.controls.password.hasError('minlength')">
+          {{validationMessages.verification.password.minlength}}
+        </mat-error>
+      </mat-form-field>
+
+      <button [disabled]="formLogin.invalid" mat-raised-button color="warn">Login</button>
+
+    </form>
+  </mat-grid-tile>
+</mat-grid-list>

@@ -1,0 +1,6 @@
+.example-fab.mat-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 40px;
+  z-index: 1000;
+}

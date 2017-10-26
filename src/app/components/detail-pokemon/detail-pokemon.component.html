@@ -1,0 +1,40 @@
+<div *ngIf='pokemon'>
+  <button mat-raised-button color="warn" class="goBackButton" routerLink="/pokemon/all">Retour</button>
+  <button mat-raised-button color="primary" class="goBackButton"routerLink="/pokemon/edit/{{pokemon.id}}">Modifier</button>
+  <mat-grid-list  cols="2" rowHeight="2:1">
+    <mat-grid-tile>
+      <mat-card class="pokemonCard">
+        <img mat-card-image src={{pokemon.picture}}>
+      </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <mat-card>
+        <table>
+          <tr>
+            <th mat-sort-header="name">Name</th>
+            <td>{{pokemon.name}}</td>
+          </tr>
+          <tr>
+            <th mat-sort-header="name">Points de vie</th>
+            <td>{{pokemon.hp}}</td>
+          </tr>
+          <tr>
+            <th mat-sort-header="name">Dégâts</th>
+            <td>{{pokemon.cp}}</td>
+          </tr>
+          <tr>
+            <th mat-sort-header="name">Types</th>
+            <mat-chip-list>
+              <mat-chip *ngFor="let type of pokemon.types" color="{{ type | pokemonTypeColor }}" selected="true">{{type}}</mat-chip>
+            </mat-chip-list>
+          </tr>
+          <tr>
+            <th mat-sort-header="name">Date de création</th>
+            <td><span>{{ pokemon.created | date:"dd/MM/yyyy" }}</span></td>
+          </tr>
+        </table>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<mat-progress-bar color="warn" *ngIf="!pokemon" mode="query"></mat-progress-bar>

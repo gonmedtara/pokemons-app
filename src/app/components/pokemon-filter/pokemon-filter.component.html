@@ -1,0 +1,5 @@
+<div class="buttonsFilterContainer">
+  <button  mat-fab  (click)="getAllType(type)">All</button>
+  <button *ngFor="let type of types" mat-fab  color="{{ type | pokemonTypeColor }}" (click)="searchPokemonByType(type)">{{type}}</button>
+</div>
+

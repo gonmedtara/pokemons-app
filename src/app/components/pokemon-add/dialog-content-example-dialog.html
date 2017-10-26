@@ -1,0 +1,42 @@
+<form (ngSubmit)="onSubmit()" #pokemonForm="ngForm">
+  <h2 mat-dialog-title>Add Pokemon</h2>
+  <mat-dialog-content>
+    <app-dnd
+      [imgOriginalSrc]="pokemon.picture"
+      (imgOriginalOut)="updatePicture($event, pokemon.id)"
+    ></app-dnd>
+    <div class="br"></div>
+    <mat-form-field>
+      <input matInput required [(ngModel)]="pokemon.name" name="name" placeholder="Name"
+             [formControl]="nameFormControl">
+      <mat-error *ngIf="nameFormControl.invalid">{{getErrorName()}}</mat-error>
+    </mat-form-field>
+
+
+    <mat-form-field>
+      <input matInput [(ngModel)]="pokemon.hp" type="number" name="hp" placeholder="Hp" [formControl]="hpFormControl">
+      <mat-error *ngIf="hpFormControl.invalid">{{getErrorHp()}}</mat-error>
+    </mat-form-field>
+    <div class="br"></div>
+
+    <mat-form-field>
+      <input matInput [(ngModel)]="pokemon.cp" type="number" name="cp" placeholder="Cp" [formControl]="cpFormControl">
+      <mat-error *ngIf="cpFormControl.invalid">{{getErrorCp()}}</mat-error>
+    </mat-form-field>
+
+      <section class="example-section" *ngFor="let type of types">
+        <mat-checkbox [checked]="hasType(type)"
+                      [disabled]="!isTypesValid(type)"
+                      (change)="selectType($event, type)">
+          <div class="chipsUnclicked {{ type | pokemonTypeColor }}"> {{type}}</div>
+        </mat-checkbox>
+      </section>
+    <div class="br"></div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button [disabled]="nameFormControl.invalid || hpFormControl.invalid || cpFormControl.invalid || hasNoTypes()"
+            mat-raised-button color="warn" type="submit">Valider
+    </button>
+    <button mat-button mat-dialog-close tabindex="-1">Cancel</button>
+  </mat-dialog-actions>
+</form>

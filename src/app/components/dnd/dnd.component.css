@@ -1,0 +1,14 @@
+.inputFile {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+.pokemonCard{
+  width: 400px;
+  height: 400px;
+}

@@ -1,1 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
+body{
+  font-family: Roboto,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;
+  margin: 0;
+}
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+.example-full-width {
+  width: 100%;
+}
+.example-spacer {
+  flex: 1 1 auto;
+}
+.goBackButton{
+  position: absolute;
+}
+.warn{
+  background-color: #f44336;
+}
+.primary{
+  background-color: #673ab7;
+}
+.accent{
+  background-color: #ffd740;
+}

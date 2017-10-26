@@ -1,0 +1,13 @@
+<mat-form-field>
+  <span  class="prefix" matPrefix>Search &nbsp; </span>
+  <input class="inputValueAuto" #serchPokemons matInput type="search" [formControl]="myControl" (keyup)="searchPokemonByName(serchPokemons.value)" [matAutocomplete]="auto">
+</mat-form-field>
+
+<mat-autocomplete #auto="matAutocomplete">
+  <mat-option *ngFor="let pokemon of pokemons" [value]="pokemon.name">
+    <a class="hrefAutoC" routerLink="/pokemon/{{pokemon.id}}">
+      <img class="autoComplete" src="{{pokemon.picture}}">
+      {{ pokemon.name }}
+    </a>
+  </mat-option>
+</mat-autocomplete>

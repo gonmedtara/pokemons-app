@@ -1,0 +1,15 @@
+.hrefAutoC:link {
+  text-decoration: none;
+  display: flex;
+}
+.autoComplete{
+  width: 40px;
+  height: 40px;
+}
+.prefix{
+  opacity:0.5;
+  font-size: medium;
+}
+.inputValueAuto{
+  width: 320px;
+}

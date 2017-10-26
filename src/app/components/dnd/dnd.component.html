@@ -1,0 +1,7 @@
+<!--<mat-card appDnd (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" [allowed_extensions]="['png', 'jpg', 'bmp']">-->
+<mat-card class="pokemonCard" appDnd (filesChangeEmiter)="onFilesChange($event)" (filesInvalidEmiter)="onFileInvalids($event)" (imgDropSrc)="onDropImage($event)">
+  <input type="file" class="inputFile" (change)="fileChangeEvent($event)">
+  <img mat-card-image src={{imgOriginalSrc}}>
+</mat-card>
+<mat-hint align="start">Modifier image ...</mat-hint>
+

@@ -1,0 +1,40 @@
+<app-pokemon-filter [pokemons]="pokemons" (filtredPokemons)="updatePokemons($event)">
+</app-pokemon-filter>
+<app-pokemon-add
+  (onDelete)="showDeletePokemons($event)"
+  >
+</app-pokemon-add>
+<div [@deleteSpan]="spanToDeleteState">
+  Ready to delete ...</div>
+<mat-grid-list *ngIf="pokemons != null" cols="4" rowHeight="1:1">
+  <mat-grid-tile *ngFor="let pokemon of pokemons ">
+    <button *ngIf="readyToDelete"
+            color="warn"
+            mat-mini-fab
+            (click)="deletePokemon(pokemon.id)"
+            class="deleteButton">
+      <mat-icon>clear</mat-icon>
+    </button>
+    <div class="deleteMessage">Deleted</div>
+    <a class="hrefCard"
+       routerLink="/pokemon/{{pokemon.id}}"
+      [@deleteState]="readyToDeleteState.split('/')[1] == pokemon.id  ? readyToDeleteState.split('/')[0] : (readyToDeleteState.split('/')[0] == 'deleted' ? 'active' :readyToDeleteState)">
+      <mat-card  pkmn-shadow-card>
+      <mat-card-title>
+        {{pokemon.name}}
+      </mat-card-title>
+      <mat-card-content>
+        <mat-chip-list>
+          <mat-chip *ngFor="let type of pokemon.types" color="{{ type | pokemonTypeColor }}" selected="true">{{type}}</mat-chip>
+        </mat-chip-list>
+        <span>{{ pokemon.created | date:"dd/MM/yyyy" }}</span>
+        <img class="pokemonListImage" src="{{pokemon.picture}}">
+      </mat-card-content>
+    </mat-card>
+    </a>
+  </mat-grid-tile>
+  <div *ngIf="pokemons.length == 0" class="noPokemonToShow">
+    Aucun pokemon à afficher
+  </div>
+</mat-grid-list>
+

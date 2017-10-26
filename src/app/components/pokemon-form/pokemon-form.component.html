@@ -1,0 +1,43 @@
+<div *ngIf="pokemon" >
+  <mat-grid-list cols="2">
+    <mat-grid-tile>
+      <app-dnd
+        [imgOriginalSrc]="pokemon.picture"
+        (imgOriginalOut)="updatePicture($event, pokemon.id)"
+      ></app-dnd>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <form (ngSubmit)="onSubmit()" #pokemonForm="ngForm">
+
+        <mat-form-field>
+          <input matInput required [(ngModel)]="pokemon.name" name="name" placeholder="Name" [formControl]="nameFormControl">
+          <mat-error *ngIf="nameFormControl.invalid">{{getErrorName()}}</mat-error>
+        </mat-form-field>
+
+
+        <mat-form-field>
+          <input matInput [(ngModel)]="pokemon.hp" name="hp" placeholder="Hp" [formControl]="hpFormControl">
+          <mat-error *ngIf="hpFormControl.invalid">{{getErrorHp()}}</mat-error>
+        </mat-form-field>
+        <div class="br"></div>
+
+        <mat-form-field>
+          <input matInput [(ngModel)]="pokemon.cp" name="cp" placeholder="Cp" [formControl]="cpFormControl">
+          <mat-error *ngIf="cpFormControl.invalid">{{getErrorCp()}}</mat-error>
+        </mat-form-field>
+
+        <section class="example-section" *ngFor="let type of types">
+          <mat-checkbox [checked]="hasType(type)"
+                        [disabled]="!isTypesValid(type)"
+                        (change)="selectType($event, type)">
+            <div class="chipsUnclicked {{ type | pokemonTypeColor }}"> {{type}} </div>
+          </mat-checkbox>
+        </section>
+        <div class="br"></div>
+        <button [disabled]="nameFormControl.invalid || hpFormControl.invalid || cpFormControl.invalid || hasNoTypes()" mat-raised-button color="warn" type="submit">Valider</button>
+      </form>
+
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<mat-progress-bar color="warn" *ngIf="!pokemon" mode="query"></mat-progress-bar>

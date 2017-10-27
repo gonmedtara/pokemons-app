@@ -9,6 +9,7 @@ export class ABSDispatcherService {
   public db:any; // init dataBase
   public url:any; // init url
   public headers:any = new Headers({'Content-Type': 'application/json'}); // set headers
+  public dbName:any;
 
 
   constructor(private http:Http) {
@@ -16,6 +17,7 @@ export class ABSDispatcherService {
 
   init(dataBaseName, remoteUrl) {
     //create database to this object
+    this.dbName = dataBaseName
     this.url = remoteUrl;
     this.db = new PouchDB(dataBaseName);
     //get infos about this object db to check
@@ -37,6 +39,9 @@ export class ABSDispatcherService {
   }
 
   getAll() {
+    if (navigator.onLine) { //check network connection
+    this.httpGetAll();
+    }
     return this.getAllFromDataBase();
   }
 
@@ -59,10 +64,11 @@ export class ABSDispatcherService {
     });
   }
 
-  httpGetAll(newObject) {
-    return this.http.get(this.url)
+  httpPost(newObject) {
+    return this.http
+      .post(this.url, JSON.stringify(newObject), this.headers)
       .toPromise()
-      .then(response => response.json())
+      .then((response) => console.log(response))
       .catch(this.handleError);
   }
 
@@ -78,13 +84,18 @@ export class ABSDispatcherService {
     )
   }
 
-  httpPost(newObject) {
-    return this.http
-      .post(this.url, JSON.stringify(newObject), this.headers)
+  httpGetAll() {
+    return this.http.get(this.url)
       .toPromise()
-      .then((response) => console.log(response))
+      .then((objects) => {
+        // console.table(objects.json());
+        this.db.destroy();
+        this.db = new PouchDB(this.dbName);
+        this.db.bulkDocs(objects.json());
+      })
       .catch(this.handleError);
   }
+
 
   // function to archive offline request
   archiveOfflineRequest(operation, object, id, url) {

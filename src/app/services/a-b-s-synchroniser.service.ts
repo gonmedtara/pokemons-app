@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers} from '@angular/http';
+import * as PouchDB from 'pouchdb';
 import 'rxjs/add/operator/toPromise';
 
 @Injectable()
@@ -11,65 +12,70 @@ export class ABSSynchroniserService {
   }
 
   sync() {
-    this.getArchives(this.handleError,this.http,this.headers);
+    this.getArchives().then((docs) => {
+      var all_contents:any=[];
+      docs.rows.forEach(
+        function (archive) {
+          all_contents.push(archive.doc)
+        });
+      all_contents.sort(function (a, b) {
+        return a.sec - b.sec;
+      });
+      this.operationDispatcher(all_contents, this.http, this.headers, this.handleError);
+    });
   }
 
-  getArchives(handleError,http,headers) {
-    let all_content = [];
-    var open = indexedDB.open("AchivesOffline", 1);
+  getArchives() {
+    this.archives = new PouchDB("achives-offline");
+    return this.archives.allDocs({
+        include_docs: true
+      }, function (err, results) {
+        if (err) {
+          console.error(err);
+        }
+      }
+    );
+  }
 
-    // Create the schema
-    open.onupgradeneeded = function () {
-      var db = open.result;
-      var store = db.createObjectStore("AchivesOfflineCatalog", {autoIncrement: true});
-    };
-
-
-    open.onsuccess = function () {
-      // Start a new transaction
-      var db = open.result;
-      var tx = db.transaction("AchivesOfflineCatalog", "readonly");
-      var store = tx.objectStore("AchivesOfflineCatalog");
-      var request = store.openCursor();
-
-      var getAllContent = store.getAll();
-
-      getAllContent.onsuccess = function () {
-        if (getAllContent.result) {
-          all_content = getAllContent.result;
-          if (all_content.length > 0) {
-            all_content.forEach(
-              function (archive) {
-                console.log(archive);
-                switch (archive.operation) {
-                  case ("add"):
-                    return http
-                      .post(archive.url, JSON.stringify(archive.object), headers)
-                      .toPromise()
-                      .then((response) => console.log('Syncronise :',response))
-                      .catch(handleError);
-                  case ("get"):
-                    console.log("get element !");
-                  case ("put"):
-                    console.log("put element !");
-                  case ("delete"):
-                    console.log("delete element !");
-                  case ("upload"):
-                    console.log("upload element !");
-                  default:
-                    console.log("nothing to do !");
-                }
-              }
-            );
-          }
-          else {
-            console.log("nothing to synchronize !")
+  operationDispatcher(all_contents:any, http:any, headers:any, handleError:any) {
+    if (all_contents.length > 0) {
+      all_contents.forEach(
+        function (archive) {
+          console.log(archive);
+          switch (archive.operation) {
+            case ("add"):
+              http.post(archive.url, JSON.stringify(archive.object), headers)
+                .toPromise()
+                .then((response) => console.log('Syncronise :', response))
+                .catch(handleError);
+              break;
+            case ("put"):
+              http.put(archive.url + "/" + archive.id_op, JSON.stringify(archive.object), headers)
+                .toPromise()
+                .then((response) => console.log('Syncronise :', response))
+                .catch(handleError);
+              break;
+            case ("delete"):
+              http.delete(archive.url + "/" + archive.id_op, headers)
+                .toPromise()
+                .then((response) => console.log('Syncronise :', response))
+                .catch(handleError);
+              break;
+            case ("upload"):
+              console.log("upload element !");
+              break;
+            default:
+              console.log("nothing to do !");
           }
         }
-      };
-    };
-    indexedDB.deleteDatabase('AchivesOffline')
+      );
+      this.archives.destroy();
+    }
+    else {
+      console.log("nothing to synchronize !")
+    }
   }
+
   private handleError(error:any):Promise<any> {
     console.error('Erreur : ', error); // on affiche simplement le message de l'erreur dans la console...
     return Promise.reject(error.message || error);

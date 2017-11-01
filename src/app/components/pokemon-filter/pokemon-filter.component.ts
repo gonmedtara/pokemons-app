@@ -1,6 +1,5 @@
 import { Component, OnInit, Input,Output,EventEmitter } from '@angular/core';
 import { PokemonsService } from '../../services/pokemons.service';
-import { PokemonSearchService } from '../../services/pokemon-search.service';
 import '../../rxjs-extension.ts';
 import {Pokemon} from '../../classes/pokemon';
 
@@ -16,13 +15,12 @@ export class PokemonFilterComponent implements OnInit {
   @Input() pokemons :Pokemon[];
   @Output() private filtredPokemons : EventEmitter<Pokemon[]> = new EventEmitter();
 
-  constructor( private pokemonSearchService: PokemonSearchService,
-               private pokemonsService: PokemonsService) { }
+  constructor(private pokemonsService: PokemonsService) { }
   ngOnInit() {
     this.types = this.pokemonsService.getPokemonTypes();
   }
   searchPokemonByType(searchValue : string){
-    this.pokemonSearchService.searchType(searchValue)
+    this.pokemonsService.searchType(searchValue)
       .then(pokemons => {this.filtredPok = pokemons;
         this.filtredPokemons.emit(this.filtredPok);});
 

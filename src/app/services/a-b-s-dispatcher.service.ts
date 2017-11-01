@@ -2,7 +2,10 @@ import {Injectable} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import * as PouchDB from 'pouchdb';
+import * as PouchDbFind from 'pouchdb-find';
 import {isUndefined} from "util";
+PouchDB.plugin(PouchDbFind);
+
 
 @Injectable()
 export class ABSDispatcherService {
@@ -12,48 +15,90 @@ export class ABSDispatcherService {
   public dbName:any;
 
 
-  constructor(private http:Http) {
-  }
-
-  init(dataBaseName, remoteUrl) {
-    //create database to this object
-    this.dbName = dataBaseName
+  constructor(private dataBaseName :any, private remoteUrl:any,private http:Http) {
+    this.dbName = dataBaseName;
     this.url = remoteUrl;
-    this.db = new PouchDB(dataBaseName);
+    this.db = new PouchDB(dataBaseName, {auto_compaction: true});
     //get infos about this object db to check
     this.db.info().then(function (info) {
       console.info(dataBaseName, "- info", info);
     });
   }
 
+  init(dataBaseName, remoteUrl) {
+    //create database to this object
+
+  }
+
   add(newObject) {
     this.postToDataBase(newObject); //add to data base
     if (navigator.onLine) { //check network connection
-      console.log("is online !");
       this.httpPost(newObject); //post to Remote server
     } else {
-      this.httpPost(newObject); //post to Remote server
-      console.log("is offline !");
-      this.archiveOfflineRequest("add", newObject, 0, this.url)
+      this.archiveOfflineRequest("add", newObject, 0, this.url, new Date().valueOf());
     }
   }
 
   getAll() {
     if (navigator.onLine) { //check network connection
-    this.httpGetAll();
+      return this.httpGetAll()
+    } else {
+      return this.getDocs()
     }
-    return this.getAllFromDataBase();
   }
 
-  getByid() {
+  getById(id:number) {
+    if (navigator.onLine) { //check network connection
+      return this.httpGetById(id);
+    } else {
+      return this.getByIdFromDataBase(id).then(response => response.docs[0]);
+    }
   }
 
-  put() {
+  put(newObject:any) {
+    if (navigator.onLine) { //check network connection
+      this.putToDataBase(newObject); //add to data base
+      return this.httpPut(newObject); //put to Remote server
+    } else {
+      this.archiveOfflineRequest("put", newObject, newObject.id, this.url, new Date().valueOf());
+      return this.putToDataBase(newObject); //add to data base
+    }
   }
 
-  delete() {
+  delete(id:number) {
+    if (navigator.onLine) { //check network connection
+      this.deleteFromDataBase(id); //add to data base
+      return this.httpDelete(id); //put to Remote server
+    } else {
+      this.archiveOfflineRequest("delete", {}, id, this.url, new Date().valueOf());
+      return this.deleteFromDataBase(id); //add to data base
+    }
   }
 
+
+  saveFileAsAtt(blob, attId) {
+      this.db.putAttachment('store', attId, blob, blob.type).then(function (result) {
+        console.log("res",result)
+      }).catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  getFileAsAtt(docId, attchId) {
+      this.db.getAttachment('store', attchId).then(function (blobOrBuffer) {
+        console.log(blobOrBuffer);
+      }).catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  deleteFileAsAtt(attchId) {
+      this.db.removeAttachment('store', attchId).then(function (result) {
+        // handle result
+      }).catch(function (err) {
+        console.log(err);
+      });
+  }
 
   // POST
   postToDataBase(newObject) {
@@ -72,8 +117,11 @@ export class ABSDispatcherService {
       .catch(this.handleError);
   }
 
-  // GET
+  // GET ALL
   getAllFromDataBase() {
+    // this.db.info().then(function (info) {
+    //   console.info("0- info", info);
+    // });
     return this.db.allDocs({
         include_docs: true
       }, function (err, results) {
@@ -84,42 +132,121 @@ export class ABSDispatcherService {
     )
   }
 
+  getDocs() {
+    return this.getAllFromDataBase().then((datas)=> {
+      let docs = [];
+      datas.rows.forEach(
+        function (data) {
+          docs.unshift(data.doc)
+        });
+      return docs;
+    })
+  }
+
   httpGetAll() {
+    console.log("call http method");
     return this.http.get(this.url)
       .toPromise()
       .then((objects) => {
-        // console.table(objects.json());
-        this.db.destroy();
-        this.db = new PouchDB(this.dbName);
-        this.db.bulkDocs(objects.json());
-      })
+        this.db.allDocs().then((result) => {
+          // Promise isn't supported by all browsers; you may want to use bluebird
+          return Promise.all(result.rows.map((row) => {
+            return this.db.remove(row.id, row.value.rev, {force: true});
+          }));
+
+        }).then(()=> {
+          Promise.all(
+            objects.json().map((object) => {
+            return this.db.post(object, {force: true});
+          }));
+        }).catch(function (err) {
+          console.info("err :", err);
+        })
+        return objects.json();
+      }).catch(this.handleError);
+
+  }
+
+  // GET BY ID
+  getByIdFromDataBase(id:number) {
+    return this.db.find({
+      selector: {id: id}
+    }, function (err, result) {
+      if (err) {
+        return console.log(err);
+      }
+    });
+  }
+
+  httpGetById(id:number) {
+    var url = `${this.url}/${id}`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
+  }
+
+
+  //PUT
+  putToDataBase(newObject:any) {
+    return this.getByIdFromDataBase(newObject.id)
+      .then((response) => {
+        if (response.docs[0]) {
+          var oldEl = response.docs[0];
+          newObject._id = oldEl._id;
+          newObject._rev = oldEl._rev;
+          this.db.put(newObject, {allow_conflict: true}, function (err, response) {
+            if (err) {
+              return console.log(err);
+            } else {
+              console.log("Documents Updated Successfully");
+            }
+          })
+        }
+      }).then(response => "Updated");
+  }
+
+  httpPut(newObject:any) {
+    var url = `${this.url}/${newObject.id}`;
+    return this.http
+      .put(url, JSON.stringify(newObject), this.headers)
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
+  }
+
+  //DELETE
+  deleteFromDataBase(id:number) {
+    return this.getByIdFromDataBase(id)
+      .then((response) => {
+        if (response.docs[0]) {
+          var oldEl = response.docs[0];
+          oldEl._deleted = true;
+          this.db.post([oldEl], {});
+        }
+      }).then(response => "Deleted");
+  }
+
+  httpDelete(id:number) {
+    var url = `${this.url}/${id}`;
+    return this.http
+      .delete(url, this.headers)
+      .toPromise()
+      .then(response => response)
       .catch(this.handleError);
   }
 
 
   // function to archive offline request
-  archiveOfflineRequest(operation, object, id, url) {
+  archiveOfflineRequest(operation, object, id, url, sec) {
     var id_op = isUndefined(id) ? 0 : id;
-    var open = indexedDB.open("AchivesOffline", 1);
-
-    // Create the schema
-    open.onupgradeneeded = function () {
-      var db = open.result;
-      var store = db.createObjectStore("AchivesOfflineCatalog", {autoIncrement: true});
-    };
-
-    open.onsuccess = function () {
-      // Start a new transaction
-      var db = open.result;
-      var tx = db.transaction("AchivesOfflineCatalog", "readwrite");
-      var store = tx.objectStore("AchivesOfflineCatalog");
-      // Add some data
-      store.put({operation: operation, object: object, id_op: id_op, url: url});
-      // Close the db when the transaction is done
-      tx.oncomplete = function () {
-        db.close();
-      };
-    };
+    var archives = new PouchDB("achives-offline");
+    var archiveDoc = {operation: operation, object: object, id_op: id_op, url: url, sec: sec};
+    archives.post(archiveDoc, function (err, response) {
+      if (err) {
+        return console.log(err);
+      }
+    });
   }
 
   private handleError(error:any):Promise<any> {

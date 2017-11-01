@@ -11,7 +11,6 @@ import {ABSSynchroniserService} from './services/a-b-s-synchroniser.service';
 // import {PouchdbService} from './services/pouchdb.service';
 import {UsersService} from './services/users.service';
 import {NetworkCheckStatusService} from './services/network-check-status.service';
-import {PokemonSearchService} from './services/pokemon-search.service';
 import {CacheStorageService} from './services/cache-storage.service';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {
@@ -115,14 +114,12 @@ const appRoutes: Routes = [
   providers: [
     PokemonsService,
     CacheStorageService,
-    PokemonSearchService,
     UsersService,
     AuthGuard,
     AuthService,
     NetworkCheckStatusService,
     ABSDispatcherService,
     ABSSynchroniserService,
-    // PouchdbService
   ],
   exports: [
     MatButtonModule,

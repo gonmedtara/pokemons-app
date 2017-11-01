@@ -1,63 +1,68 @@
-import { Injectable } from '@angular/core';
-import { Http, Headers } from '@angular/http';
-import 'rxjs/add/operator/toPromise';
-import { Pokemon } from '../classes/pokemon';
+import {Injectable} from '@angular/core';
+import {ABSDispatcherService} from './a-b-s-dispatcher.service';
+// import 'rxjs/add/operator/toPromise';
+import {Pokemon} from '../classes/pokemon';
 
 @Injectable()
 export class PokemonsService {
-  constructor(private http: Http) { }
-  // Retourne tous les pokémons
-  getPokemons():  Promise<Pokemon[]> {
-    return this.http.get('app/pokemons')
-      .toPromise()
-      .then(response => response.json() as Pokemon[])
-      .catch(this.handleError);
+  constructor(private aBSDispatcherService:ABSDispatcherService) {
+    this.aBSDispatcherService.init("pokemon", "app/pokemons");
   }
+
+  getPokemons() {
+    return this.aBSDispatcherService.getAll();
+  }
+
   // Retourne le pokémon avec l'identifiant passé en paramètre
-  getPokemon(id: number): Promise<Pokemon> {
-    const url = 'app/pokemons/' + id;
-    return this.http.get(url)
-      .toPromise()
-      .then(response => response.json() as Pokemon)
-      .catch(this.handleError);
+  getPokemon(id:number) {
+    return this.aBSDispatcherService.getById(id).then(el =>el);
   }
+
+  addPokemons(pokemon:Pokemon):any {
+    return this.aBSDispatcherService.add(pokemon);
+  }
+
+  update(pokemon:Pokemon) {
+    return this.aBSDispatcherService.put(pokemon).then(reponse => this.aBSDispatcherService.getById(pokemon.id))
+  }
+
+  deletePokemon(pokemonId:number) {
+    return this.aBSDispatcherService.delete(pokemonId).then((el)=> console.log("Delete", el));
+  }
+
   // types de pokémons possible
-  getPokemonTypes(): Array<string> {
+  getPokemonTypes():Array<string> {
     return [
       'Plante', 'Feu', 'Eau', 'Insecte', 'Normal', 'Electrik',
       'Poison', 'Fée', 'Vol', 'Combat', 'Psy'
     ];
   }
-  addPokemons(pokemon: Pokemon): Promise<Pokemon> {
-    const url = `app/pokemons`;
-    let headers = new Headers({'Content-Type': 'application/json'});
-    return this.http
-      .post(url, JSON.stringify(pokemon), headers)
-      .toPromise()
-      .then((response) => console.log("add response",response))
-      .catch(this.handleError);
-  }
-  update(pokemon: Pokemon): Promise<Pokemon> {
-    const url = `app/pokemons/${pokemon.id}`;
-    let headers = new Headers({'Content-Type': 'application/json'});
-    return this.http
-      .put(url, JSON.stringify(pokemon), headers)
-      .toPromise()
-      .then(() => pokemon)
-      .catch(this.handleError);
-  }
-  deletePokemon(pokemonId: number): Promise<Pokemon> {
-    const url = `app/pokemons/${pokemonId}`;
-    let headers = new Headers({'Content-Type': 'application/json'});
-    return this.http
-      .delete(url, headers)
-      .toPromise()
-      .then((res) => console.log("delete resultat :", res))
-      .catch(this.handleError);
+
+  searchName(term:string) {
+    return this.aBSDispatcherService.getAll().then((data) => {
+      console.table(data);
+
+      var pokemons = data.map(function(pokemon){
+        if(term ==  pokemon.name){
+          return pokemon;
+        }
+      });
+      return pokemons ;
+    })
   }
 
-  private handleError(error: any): Promise<any> {
-    console.error('Erreur : ', error); // on affiche simplement le message de l'erreur dans la console...
-    return Promise.reject(error.message || error);
+  searchType(term:string) {
+    return this.aBSDispatcherService.getAll().then((data) => {
+      var pokemons = [];
+       data.map(function(pokemon){
+        if(pokemon.types.indexOf(term)> -1){
+          console.log("this", pokemon);
+          pokemons.pushpokemon;
+        }
+      });
+      console.table(pokemons);
+      return pokemons ;
+    })
   }
+
 }

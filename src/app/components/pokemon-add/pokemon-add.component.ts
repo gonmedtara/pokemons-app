@@ -112,26 +112,14 @@ export class DialogContentExampleDialog {
 
   // La méthode appelée lorsque le formulaire est soumis.
   onSubmit():void {
-    // this.pokemonsService.update(this.pokemon)
-    //   .then(() => {
-    //     let link = ['/pokemon', this.pokemon.id];
-    //     this.router.navigate(link);
-    //   });
-    this.pokemonsService.addPokemons(this.pokemon)
-      .then(() => {
-        let link = ['/pokemon', this.pokemon.id];
-        this.router.navigate(link);
-      });
+    console.log("picture",this.pokemon);
+    this.pokemonsService.addPokemons(this.pokemon);
     this.closeDialog();
-    console.log("new pokemon", this.pokemon);
+    let link = ['/pokemon', this.pokemon.id];
+    this.router.navigate(link);
   }
 
   updatePicture(imgOriginalOut:string, pokemonId:any) {
-    // let imageFromIxDB: string =this.pokemon.picture;
-    // this.cacheStorageService.saveImage(imgOriginalOut,this.pokemon.id);
-    // this.cacheStorageService.getImage(this.pokemon.picture,this.pokemon.id).then();
-    // console.log("image", imageFromIxDB);
-    // this.pokemon.picture = imageFromIxDB;
     this.pokemon.picture = imgOriginalOut;
   }
   closeDialog(){

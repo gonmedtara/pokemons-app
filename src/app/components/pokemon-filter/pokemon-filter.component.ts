@@ -11,7 +11,7 @@ import {Pokemon} from '../../classes/pokemon';
 })
 export class PokemonFilterComponent implements OnInit {
   types:Array<string>; // types possibles d'un pokémon : 'Eau', 'Feu', etc ...
-  private filtredPok :Pokemon [];
+  public filtredPok :Pokemon [];
   @Input() pokemons :Pokemon[];
   @Output() private filtredPokemons : EventEmitter<Pokemon[]> = new EventEmitter();
 

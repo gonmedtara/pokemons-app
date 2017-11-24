@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {ABSFileStoreService} from '../../services/a-b-s-file-store.service';
 
 @Component({
   selector: 'app-dnd',
@@ -11,7 +12,7 @@ export class DndComponent {
 
   private fileList : any [];
   private invalidFiles : any [];
-  constructor() { }
+  constructor(private aBSFileStoreService:ABSFileStoreService) { }
 
   onFilesChange(fileList : Array<File>){
     this.fileList = fileList;
@@ -28,6 +29,8 @@ export class DndComponent {
 
   fileChangeEvent(event: any){
     if (event.target.files && event.target.files[0]) {
+      this.aBSFileStoreService.saveFileAsAtt(event.target.files[0],event.target.files[0].name);
+      console.log("file", event.target.files[0]);
       var reader = new FileReader();
 
       reader.onload = (event) => {

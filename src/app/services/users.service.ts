@@ -17,7 +17,7 @@ export class UsersService {
 
   addUser(user: User): Promise<User> {
     const url = `app/users`;
-    let headers = new Headers({'Content-Type': 'application/json'});
+    let headers:any = new Headers({'Content-Type': 'application/json'}); // set headers
     return this.http
       .post(url, JSON.stringify(user), headers)
       .toPromise()

@@ -1,0 +1,10 @@
+<p>
+  file-store works!
+</p>
+<input type="file" (change)="uploadFile($event)">
+<iframe *ngIf="videoSrc != ''" [src]="videoSrc | safe" frameborder="0" allowfullscreen></iframe>
+<iframe *ngIf="docSrc != ''" [src]="docSrc | safe"  width="100%" height="800"></iframe>
+<img *ngIf="imgSrc != ''" [src]="imgSrc|safe">
+<mat-list>
+  <mat-list-item *ngFor="let file of filesLists" (click)="showFile(file.blob)">{{file.name}}</mat-list-item>
+</mat-list>

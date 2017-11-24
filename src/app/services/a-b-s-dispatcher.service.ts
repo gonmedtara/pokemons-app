@@ -9,13 +9,18 @@ PouchDB.plugin(PouchDbFind);
 
 @Injectable()
 export class ABSDispatcherService {
-  public db:any; // init dataBase
-  public url:any; // init url
-  public headers:any = new Headers({'Content-Type': 'application/json'}); // set headers
-  public dbName:any;
+  private db:any; // init dataBase
+  private url:any; // init url
+  private headers:any = new Headers({'Content-Type': 'application/json'}); // set headers
+  private dbName:any;
 
 
-  constructor(private dataBaseName :any, private remoteUrl:any,private http:Http) {
+  constructor(private http:Http) {
+
+  }
+
+  init(dataBaseName, remoteUrl) {
+    //create database to this object
     this.dbName = dataBaseName;
     this.url = remoteUrl;
     this.db = new PouchDB(dataBaseName, {auto_compaction: true});
@@ -23,11 +28,6 @@ export class ABSDispatcherService {
     this.db.info().then(function (info) {
       console.info(dataBaseName, "- info", info);
     });
-  }
-
-  init(dataBaseName, remoteUrl) {
-    //create database to this object
-
   }
 
   add(newObject) {
@@ -73,31 +73,6 @@ export class ABSDispatcherService {
       this.archiveOfflineRequest("delete", {}, id, this.url, new Date().valueOf());
       return this.deleteFromDataBase(id); //add to data base
     }
-  }
-
-
-  saveFileAsAtt(blob, attId) {
-      this.db.putAttachment('store', attId, blob, blob.type).then(function (result) {
-        console.log("res",result)
-      }).catch(function (err) {
-        console.log(err);
-      });
-  }
-
-  getFileAsAtt(docId, attchId) {
-      this.db.getAttachment('store', attchId).then(function (blobOrBuffer) {
-        console.log(blobOrBuffer);
-      }).catch(function (err) {
-        console.log(err);
-      });
-  }
-
-  deleteFileAsAtt(attchId) {
-      this.db.removeAttachment('store', attchId).then(function (result) {
-        // handle result
-      }).catch(function (err) {
-        console.log(err);
-      });
   }
 
   // POST

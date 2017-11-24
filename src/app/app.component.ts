@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
   constructor(public snackBar:MatSnackBar,
               private aBSSynchroniserService:ABSSynchroniserService,
               private router:Router,
-              private authService:AuthService) {
+              public authService:AuthService) {
   }
 
   ngOnInit() {

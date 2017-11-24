@@ -43,7 +43,7 @@ export class PokemonsService {
       console.table(data);
 
       var pokemons = data.map(function(pokemon){
-        if(term ==  pokemon.name){
+        if(pokemon.name.toUpperCase().indexOf(term.toUpperCase())> -1){
           return pokemon;
         }
       });
@@ -56,11 +56,9 @@ export class PokemonsService {
       var pokemons = [];
        data.map(function(pokemon){
         if(pokemon.types.indexOf(term)> -1){
-          console.log("this", pokemon);
-          pokemons.pushpokemon;
+          pokemons.push(pokemon);
         }
       });
-      console.table(pokemons);
       return pokemons ;
     })
   }

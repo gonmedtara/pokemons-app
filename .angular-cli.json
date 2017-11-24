@@ -5,12 +5,16 @@
   },
   "apps": [
     {
-      "serviceWorker":"true",
       "root": "src",
       "outDir": "dist",
       "assets": [
         "assets",
-        "favicon.ico"
+        "favicon.ico",
+        {
+          "input": "../node_modules/@angular/service-worker",
+          "glob": "ngsw-worker.js",
+          "output": "."
+        }
       ],
       "index": "index.html",
       "main": "main.ts",
@@ -20,6 +24,7 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
       "styles": [
+        "../node_modules/videogular2/fonts/videogular.css",
         "styles.css"
       ],
       "scripts": [],
@@ -56,6 +61,7 @@
   },
   "defaults": {
     "styleExt": "css",
-    "component": {}
+    "component": {
+    }
   }
 }
